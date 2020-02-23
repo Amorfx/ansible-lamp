@@ -1,4 +1,7 @@
 ---
-- name: Deploy Nginx files
-  copy: src=nginx/ dest=/etc/nginx/
+- name: Deploy template Nginx file
+  template: src=personal-site.conf dest=/etc/nginx/
+
+- name: Deploy other Nginx files
+  copy: src=nginx/nginx.conf dest=/etc/nginx/
   notify: restart nginx

@@ -4,15 +4,15 @@
   vars:
     php_version: 7.2
     zsh_theme: alanpeabody
-    user_home_path: "/root"
-    site_www_path: "/var/www/"
-    nginx_server_name: "your_domain_or_ip"
+    user_home_path: /root
+    site_www_path: /var/www
+    nginx_server_name: your_domain_or_ip
 
   roles:
     - { role: common, tags: ['base'] }
     - { role: oh-my-zsh, tags: ['base'] }
     - { role: fail2ban, tags: ['fail2ban'] }
-    - { role: nginx, tags: ['base'] }
+    - { role: nginx, tags: ['base', 'nginx'] }
     - { role: php-nginx, tags: ['base', 'php'] }
     - { role: php-fpm, tags: ['base', 'php'] }
 

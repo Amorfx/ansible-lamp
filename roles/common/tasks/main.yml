@@ -59,6 +59,3 @@
 
 - name: Setup Bash History
   lineinfile: dest=/root/.bashrc regexp='^HISTFILE=' line="HISTFILE=~/.bash_history"
-
-- name: Install software-properties-common
-  apt: pkg=software-properties-common state=latest update_cache=yes force=yes

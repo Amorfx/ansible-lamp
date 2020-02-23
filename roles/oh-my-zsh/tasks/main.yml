@@ -1,0 +1,8 @@
+- name: Clone oh-my-zsh repo
+  git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest={{ user_home_path|default("/root") }}/.oh-my-zsh
+
+- name: Deploy .zshrc
+  template: src=zshrc.in dest={{ user_home_path|default("/root") }}/.zshrc
+
+- name: Set zsh as default shell
+  user: name=root shell=/bin/zsh

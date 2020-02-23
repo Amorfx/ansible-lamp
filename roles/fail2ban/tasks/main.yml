@@ -1,0 +1,6 @@
+---
+- name: Install fail2ban
+  apt: pkg=fail2ban state=present
+  register: fail2ban_install
+  tags:
+    - apt

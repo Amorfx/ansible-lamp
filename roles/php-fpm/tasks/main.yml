@@ -1,0 +1,66 @@
+---
+- name: install php packages
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  vars:
+    packages:
+      - php-cli
+      - php-fpm
+      - php-json
+      - php-xml
+      - php-zip
+      - php-sqlite3
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-mysqlnd
+      - php-mysqli
+      - php-mbstring
+
+- name: install php standard packages
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  vars:
+    packages:
+      # Uncomment if use cache
+      # - php-memcache
+      # - php-memcached
+      # - php-redis
+      - php-pear
+  when: ansible_distribution == 'Ubuntu'
+
+- name: install optional php
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  ignore_errors: yes
+  vars:
+    packages:
+      - php-geoip
+
+# --- PHP.INI ---
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^max_execution_time insertafter='^;max_execution_time' line='max_execution_time = 160'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^memory_limit insertafter='^;memory_limit' line='memory_limit = 360M'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^post_max_size insertafter='^;post_max_size' line='post_max_size = 26M'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^upload_max_filesize insertafter='^;upload_max_filesize' line='upload_max_filesize = 26M'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^date.timezone insertafter='^;date.timezone' line='date.timezone = Europe/Paris'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^mail.log insertafter='^;mail.log' line='mail.log = /var/log/phpmail.log'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^max_input_time insertafter='^;max_input_time' line='max_input_time = 60'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^session.cookie_lifetime insertafter='^;session.cookie_lifetime' line='session.cookie_lifetime = 1814400'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^error_log insertafter='^;error_log' line='error_log = /tmp/php_errors.log'
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^default_socket_timeout insertafter='^;default_socket_timeout' line='default_socket_timeout = 2'
+
+#opcache
+- lineinfile: dest=/etc/php/{{ php_version }}/fpm/php.ini regexp=^opcache.memory_consumption insertafter='^;opcache.memory_consumption' line='opcache.memory_consumption=256'
+  notify: restart php
+
+# --- PHP-FPM NGINX CONF ---
+- name: Test if /etc/nginx/php-fpm.conf exists
+  stat: path=/etc/nginx/php-fpm.conf
+  register: nginx_php_file
+
+- lineinfile: dest=/etc/nginx/php-fpm.conf regexp=fastcgi_pass  line='fastcgi_pass unix:/run/php/php{{ php_version }}-fpm.sock;'
+  when: nginx_php_file.stat.exists == True
+  notify: restart nginx

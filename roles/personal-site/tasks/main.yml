@@ -1,0 +1,4 @@
+---
+- name: Deploy Nginx files
+  copy: src=nginx/ dest=/etc/nginx/
+  notify: restart nginx

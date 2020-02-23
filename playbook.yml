@@ -1,0 +1,26 @@
+---
+- name: Ansible playbook for Lamp
+  hosts: personal-site
+  vars:
+    php_version: 7.2
+    zsh_theme: alanpeabody
+    user_home_path: "/root"
+    site_www_path: "/var/www/"
+    nginx_server_name: "your_domain_or_ip"
+
+  roles:
+    - { role: common, tags: ['base'] }
+    - { role: oh-my-zsh, tags: ['base'] }
+    - { role: fail2ban, tags: ['fail2ban'] }
+    - { role: nginx, tags: ['base'] }
+    - { role: php-nginx, tags: ['base', 'php'] }
+    - { role: php-fpm, tags: ['base', 'php'] }
+
+    # Uncomment to install nodejs
+    # - { role: nodejs, tags: ['base'] }
+
+    # Uncomment to install memcached
+    # - { role: memcached, tags: ['base'] }
+
+    # Change role for your needs
+    - { role: personal-site, tags: ['conf'] }

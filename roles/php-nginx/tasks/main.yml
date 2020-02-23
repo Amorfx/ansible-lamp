@@ -1,0 +1,6 @@
+---
+- name: Deploy nginx php-fpm.conf file
+  template: src=php-fpm.conf dest=/etc/nginx/php-fpm.conf
+
+- name: Deploy nginx tweak.conf files
+  template: src=tweak.conf dest=/etc/nginx/tweak.conf

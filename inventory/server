@@ -1,0 +1,2 @@
+[personal-site]
+YOUR_SITE_IP ansible_connection=ssh ansible_ssh_user=root

@@ -1,0 +1,64 @@
+---
+- name: APT Update
+  apt:
+    update_cache: yes
+
+- name: Install common packages
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  vars:
+    packages:
+      - git
+      - git-extras
+      - curl
+      - links
+      - zsh
+      - mailutils
+      - colordiff
+      - python-pycurl
+      - composer
+      - mysql-utilities
+      - unzip
+      - gnupg
+
+- name: Monitoring tools
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  vars:
+    packages:
+      - iptraf
+      - iftop
+      - htop
+
+- name: French locales
+  locale_gen: name=fr_FR.UTF-8 state=present
+  ignore_errors: yes
+
+- name: US locales
+  locale_gen: name=en_US.UTF-8 state=present
+  ignore_errors: yes
+
+- name: Set timezone variables
+  copy: content='Europe/Paris'
+    dest=/etc/timezone
+    owner=root
+    group=root
+    mode=0644
+    backup=yes
+
+- name: Deploy vimrc
+  template: src=vimrc.in dest={{ user_home_path|default('/root') }}/.vimrc
+
+- name: Set vim as default editor
+  command: update-alternatives --set editor /usr/bin/vim.basic
+
+- name: Change PS1
+  lineinfile: dest=/root/.bashrc regexp='^export PS1' line='export PS1="\A \[\e[35m\]\u\[\e[m\]\[\e[35m\]@\[\e[m\]\[\e[35m\]\H\[\e[m\] \[\e[34m\]\w\[\e[m\] \\$ "'
+
+- name: Setup Bash History
+  lineinfile: dest=/root/.bashrc regexp='^HISTFILE=' line="HISTFILE=~/.bash_history"
+
+- name: Install software-properties-common
+  apt: pkg=software-properties-common state=latest update_cache=yes force=yes

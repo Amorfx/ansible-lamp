@@ -19,6 +19,7 @@
       - python-pycurl
       - composer
       - mysql-utilities
+      - mysql-server
       - unzip
       - gnupg
 

@@ -1,0 +1,13 @@
+---
+- name: Install nodejs packages
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  vars:
+    packages:
+      - nodejs
+      - npm
+
+# Uncomment to install webpack
+#- name: Install Webpack
+#  command: 'npm install -g webpack'

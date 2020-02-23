@@ -1,37 +1,50 @@
 - name: Install MySQL
-  apt: pkg={{ item }} state=latest
-  with_items:
-    - mariadb-server
-    - mariadb-client
-    - mysqltuner
+  apt:
+    name: '{{ packages }}'
+    state: latest
+  vars:
+      packages:
+        - mysql-server
+        - mysqltuner
+        - python-pip
+
+- name: Install PyMySQL
+  pip:
+    name: pymysql
 
 # Configure MySQL
 - name: ensure mysql is running and starts on boot
   service: name=mysql state=started enabled=true
 
-- name: update mysql root password for all root accounts
-  mysql_user: name=root host=localhost password={{ mysql_root_db_password }}
-
-- name: Copy .my.cnf file with root password credentials
-  template: src=root.my.cnf.j2 dest=/root/.my.cnf owner=root mode=0600
-
-- name: Update mysql root password for all root accounts
-  mysql_user: name=root host={{ item }} password={{ mysql_root_db_password }}
-  with_items:
-    - 127.0.0.1
-    - ::1
+- name: Copy .my.cnf file with root password credentials.
+  template:
+    src: "root-my.cnf.j2"
+    dest: "/root/.my.cnf"
+    owner: root
+    group: root
+    mode: 0400
+  notify: restart mysql
 
 - name: Create database
-  mysql_db: db={{ mysql_db_name }} state=present
+  mysql_db: db={{ mysql_db_name }} state=present login_unix_socket=/var/run/mysqld/mysqld.sock
 
 - name: Create mysql user account
-  mysql_user: name={{ mysql_user_name }} host=localhost password={{ mysql_user_name_password }} priv='{{ mysql_user_name }}.*:ALL'
+  mysql_user: name={{ mysql_user_name }} host=localhost password={{ mysql_user_password }} priv='{{ mysql_user_name }}.*:ALL' login_unix_socket=/var/run/mysqld/mysqld.sock
 
-- name: Ensure anonymous users are not in the database
-  mysql_user: name='' host={{ item }} state=absent
-  with_items:
-    - localhost
+- name: Get list of hosts for the anonymous user.
+  command: mysql -NBe 'SELECT Host FROM mysql.user WHERE User = ""'
+  register: mysql_anonymous_hosts
+  changed_when: false
+  check_mode: false
 
-- name: Remove the test database
-  mysql_db: name=test state=absent
-  notify: restart mysql
+- name: Remove anonymous MySQL users.
+  mysql_user:
+    name: ""
+    host: "{{ item }}"
+    state: absent
+  with_items: "{{ mysql_anonymous_hosts.stdout_lines|default([]) }}"
+
+- name: Delete file my.conf
+  file:
+    path: /root/.my.cnf
+    state: absent

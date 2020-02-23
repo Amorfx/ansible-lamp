@@ -6,11 +6,13 @@
     zsh_theme: alanpeabody
     user_home_path: /root
     site_www_path: /var/www
-    nginx_server_name: your_domain_or_ip
-    mysql_root_db_password: root_user_pwd
-    mysql_user_name: username
-    mysql_user_name_password: username_pwd
-    mysql_db_name: db_name
+    # Uncomment this lines
+    #nginx_server_name:
+    #mysql_root_username:
+    #mysql_root_password:
+    #mysql_user_name:
+    #mysql_user_password:
+    #mysql_db_name:
 
   roles:
     - { role: common, tags: ['base'] }

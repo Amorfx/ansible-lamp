@@ -19,9 +19,9 @@
       - python-pycurl
       - composer
       - mysql-utilities
-      - mysql-server
       - unzip
       - gnupg
+      - software-properties-common
 
 - name: Monitoring tools
   apt:
